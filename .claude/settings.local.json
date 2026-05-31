@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.\\\\gradlew.bat assembleDebug)",
+      "Bash(cmd.exe /c \"gradlew.bat assembleDebug\")",
+      "PowerShell(Get-Item \"C:\\\\Users\\\\calde\\\\AndroidStudioProjects\\\\RideUJAT\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\" | Select-Object FullName, @{N=\"Tamaño MB\";E={[math]::Round\\($_.Length/1MB,1\\)}}, LastWriteTime)"
+    ]
+  }
+}
