@@ -27,7 +27,7 @@ class AuthRepository {
         contrasena: String
     ): Result<Unit> {
         return try {
-            supabase.auth.signUpWith(Email) {
+            val user = supabase.auth.signUpWith(Email) {
                 email = correo
                 password = contrasena
             }
@@ -35,13 +35,13 @@ class AuthRepository {
                 ?: return Result.failure(Exception("Error al crear la sesión. Verifica tu correo."))
 
             supabase.postgrest["users"].insert(
-                mapOf(
-                    "id" to userId,
-                    "nombre" to nombre,
-                    "matricula" to matricula,
-                    "correo" to correo,
-                    "rating_promedio" to 5.0,
-                    "viajes_count" to 0
+                Profile(
+                    id=userId,
+                    nombre = nombre,
+                    matricula = matricula,
+                    correo = correo,
+                    ratingPromedio = 5.0,
+                    viajesCount = 0
                 )
             )
             Result.success(Unit)
