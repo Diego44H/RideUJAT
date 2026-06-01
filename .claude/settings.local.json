@@ -5,7 +5,10 @@
       "Bash(cmd.exe /c \"gradlew.bat assembleDebug\")",
       "PowerShell(Get-Item \"C:\\\\Users\\\\calde\\\\AndroidStudioProjects\\\\RideUJAT\\\\app\\\\build\\\\outputs\\\\apk\\\\debug\\\\app-debug.apk\" | Select-Object FullName, @{N=\"Tamaño MB\";E={[math]::Round\\($_.Length/1MB,1\\)}}, LastWriteTime)",
       "Bash(./gradlew build *)",
-      "Bash(./gradlew assembleDebug)"
+      "Bash(./gradlew assembleDebug)",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__apply_migration"
     ]
   }
 }

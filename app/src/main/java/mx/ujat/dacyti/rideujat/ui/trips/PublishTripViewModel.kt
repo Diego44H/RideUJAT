@@ -67,7 +67,7 @@ class PublishTripViewModel : ViewModel() {
                         )
                     }
                 },
-                onFailure = { e -> _uiState.update { it.copy(isLoading = false, error = e.message) } }
+                onFailure = { _uiState.update { it.copy(isLoading = false, error = "No pudimos cargar el viaje. Intenta de nuevo.") } }
             )
         }
     }
@@ -85,12 +85,12 @@ class PublishTripViewModel : ViewModel() {
     fun submitTrip() {
         val state = _uiState.value
         val error = when {
-            state.selectedVehicle == null -> "Selecciona un vehículo"
-            state.origen.isBlank() -> "El origen es requerido"
-            state.fechaMillis == null -> "Selecciona la fecha de salida"
-            state.hora.isBlank() -> "Selecciona la hora de salida"
-            state.tarifa.toDoubleOrNull() == null -> "Ingresa una tarifa válida"
-            !isValidFutureDateTime(state.fechaMillis!!, state.hora) -> "La fecha y hora deben estar en el futuro"
+            state.selectedVehicle == null -> "Por favor selecciona un vehículo"
+            state.origen.isBlank() -> "Por favor ingresa el punto de salida"
+            state.fechaMillis == null -> "Por favor selecciona la fecha del viaje"
+            state.hora.isBlank() -> "Por favor selecciona la hora de salida"
+            state.tarifa.toDoubleOrNull() == null -> "Por favor ingresa una tarifa válida"
+            !isValidFutureDateTime(state.fechaMillis!!, state.hora) -> "El viaje debe ser en una fecha y hora futura"
             else -> null
         }
         if (error != null) { _uiState.update { it.copy(error = error) }; return }
@@ -116,7 +116,7 @@ class PublishTripViewModel : ViewModel() {
                     )
                 ).fold(
                     onSuccess = { _uiState.update { it.copy(isLoading = false, success = true) } },
-                    onFailure = { e -> _uiState.update { it.copy(isLoading = false, error = e.message) } }
+                    onFailure = { _uiState.update { it.copy(isLoading = false, error = "No pudimos actualizar el viaje. Intenta de nuevo.") } }
                 )
             } else {
                 val userId = supabase.auth.currentUserOrNull()?.id ?: return@launch
@@ -135,7 +135,7 @@ class PublishTripViewModel : ViewModel() {
                     )
                 ).fold(
                     onSuccess = { _uiState.update { it.copy(isLoading = false, success = true) } },
-                    onFailure = { e -> _uiState.update { it.copy(isLoading = false, error = e.message) } }
+                    onFailure = { _uiState.update { it.copy(isLoading = false, error = "No pudimos publicar el viaje. Intenta de nuevo.") } }
                 )
             }
         }

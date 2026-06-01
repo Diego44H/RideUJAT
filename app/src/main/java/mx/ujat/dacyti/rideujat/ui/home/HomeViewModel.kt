@@ -51,33 +51,31 @@ class HomeViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Check for active trips as passenger - verify trip is also EN_CURSO
-                val passengerRequest = runCatching {
+                // Check for active trips as passenger
+                val passengerRequests = runCatching {
                     supabase.postgrest["trip_requests"].select {
                         filter {
                             eq("pasajero_id", userId)
                             eq("estado", RequestEstado.ACEPTADO)
                         }
-                    }.decodeSingle<TripRequest>()
-                }.getOrNull()
+                    }.decodeList<TripRequest>()
+                }.getOrNull() ?: emptyList()
 
-                if (passengerRequest != null) {
-                    // Verify the trip is still EN_CURSO
-                    val trip = runCatching {
-                        supabase.postgrest["trips"].select {
-                            filter { eq("id", passengerRequest.tripId) }
-                        }.decodeSingle<Trip>()
-                    }.getOrNull()
+                if (passengerRequests.isNotEmpty()) {
+                    for (req in passengerRequests) {
+                        val trip = runCatching {
+                            supabase.postgrest["trips"].select {
+                                filter { eq("id", req.tripId) }
+                            }.decodeSingle<Trip>()
+                        }.getOrNull()
 
-                    if (trip != null && trip.estado == TripEstado.EN_CURSO) {
-                        _uiState.update { it.copy(activeTripId = passengerRequest.tripId, isConductor = false) }
-                    } else {
-                        _uiState.update { it.copy(activeTripId = null, isConductor = false) }
+                        if (trip != null && (trip.estado == TripEstado.EN_CURSO || trip.estado == TripEstado.PUBLICADO)) {
+                            _uiState.update { it.copy(activeTripId = req.tripId, isConductor = false) }
+                            return@launch
+                        }
                     }
-                } else {
-                    // No active trip found
-                    _uiState.update { it.copy(activeTripId = null, isConductor = false) }
                 }
+                _uiState.update { it.copy(activeTripId = null, isConductor = false) }
             } catch (e: Exception) {
                 // No active trip found
                 _uiState.update { it.copy(activeTripId = null, isConductor = false) }

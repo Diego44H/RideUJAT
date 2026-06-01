@@ -22,21 +22,30 @@ class SearchTripRepository {
 
             if (trips.isEmpty()) return Result.success(emptyList())
 
-            val conductors = trips.map { it.conductorId }.distinct().mapNotNull { id ->
+            // Obtener conductores: intentar con decodeList para evitar excepciones en RLS
+            val conductorIds = trips.map { it.conductorId }.distinct()
+            val conductors = mutableMapOf<String, Profile>()
+            for (id in conductorIds) {
                 runCatching {
                     supabase.postgrest["users"].select {
                         filter { eq("id", id) }
-                    }.decodeSingle<Profile>()
-                }.getOrNull()
-            }.associateBy { it.id }
+                    }.decodeList<Profile>().firstOrNull()
+                }.getOrNull()?.let { profile ->
+                    profile.id?.let { conductors[it] = profile }
+                }
+            }
 
-            val vehicles = trips.map { it.vehiculoId }.distinct().mapNotNull { id ->
+            val vehicleIds = trips.map { it.vehiculoId }.distinct()
+            val vehicles = mutableMapOf<String, Vehicle>()
+            for (id in vehicleIds) {
                 runCatching {
                     supabase.postgrest["vehicles"].select {
                         filter { eq("id", id) }
-                    }.decodeSingle<Vehicle>()
-                }.getOrNull()
-            }.associateBy { it.id }
+                    }.decodeList<Vehicle>().firstOrNull()
+                }.getOrNull()?.let { vehicle ->
+                    vehicle.id?.let { vehicles[it] = vehicle }
+                }
+            }
 
             val result = trips.map { trip ->
                 TripWithDetails(trip, conductors[trip.conductorId], vehicles[trip.vehiculoId])
