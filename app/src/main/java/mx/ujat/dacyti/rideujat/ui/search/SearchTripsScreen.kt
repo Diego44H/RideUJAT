@@ -41,9 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import mx.ujat.dacyti.rideujat.data.model.TripWithDetails
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -169,17 +171,26 @@ private fun TripSearchCard(details: TripWithDetails, onClick: () -> Unit) {
 
 @Composable
 internal fun ConductorAvatar(nombre: String, fotoUrl: String?, size: Int = 44) {
-    Box(
-        modifier = Modifier.size(size.dp).clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            nombre.firstOrNull()?.uppercase() ?: "?",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            fontWeight = FontWeight.Bold
+    if (!fotoUrl.isNullOrBlank()) {
+        AsyncImage(
+            model = fotoUrl,
+            contentDescription = "Foto de $nombre",
+            modifier = Modifier.size(size.dp).clip(CircleShape),
+            contentScale = ContentScale.Crop
         )
+    } else {
+        Box(
+            modifier = Modifier.size(size.dp).clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                nombre.firstOrNull()?.uppercase() ?: "?",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 

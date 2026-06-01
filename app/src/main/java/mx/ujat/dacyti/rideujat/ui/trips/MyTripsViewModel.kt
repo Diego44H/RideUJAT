@@ -3,6 +3,7 @@ package mx.ujat.dacyti.rideujat.ui.trips
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +20,19 @@ class MyTripsViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(MyTripsUiState())
     val uiState: StateFlow<MyTripsUiState> = _uiState.asStateFlow()
 
-    init { loadTrips() }
+    init {
+        loadTrips()
+        startAutoRefresh()
+    }
+
+    private fun startAutoRefresh() {
+        viewModelScope.launch {
+            while (true) {
+                delay(5000)
+                loadTrips()
+            }
+        }
+    }
 
     fun loadTrips() {
         val userId = supabase.auth.currentUserOrNull()?.id ?: return

@@ -82,6 +82,12 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun signOut() {
+        viewModelScope.launch {
+            supabase.auth.signOut()
+        }
+    }
+
     fun clearError() { _uiState.update { it.copy(error = null) } }
 }
 

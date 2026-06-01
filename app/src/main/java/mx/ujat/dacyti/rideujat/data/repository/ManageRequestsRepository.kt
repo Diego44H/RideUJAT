@@ -18,6 +18,8 @@ class ManageRequestsRepository {
                 filter { eq("trip_id", tripId) }
             }.decodeList<TripRequest>()
 
+            if (requests.isEmpty()) return Result.success(emptyList())
+
             val pasajeros = requests.map { it.pasajeroId }.distinct().mapNotNull { id ->
                 runCatching {
                     supabase.postgrest["users"].select { filter { eq("id", id) } }.decodeSingle<Profile>()

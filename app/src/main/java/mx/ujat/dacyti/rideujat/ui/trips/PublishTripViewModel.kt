@@ -16,6 +16,8 @@ import mx.ujat.dacyti.rideujat.data.repository.TripRepository
 import mx.ujat.dacyti.rideujat.data.repository.VehicleRepository
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -88,6 +90,7 @@ class PublishTripViewModel : ViewModel() {
             state.fechaMillis == null -> "Selecciona la fecha de salida"
             state.hora.isBlank() -> "Selecciona la hora de salida"
             state.tarifa.toDoubleOrNull() == null -> "Ingresa una tarifa válida"
+            !isValidFutureDateTime(state.fechaMillis!!, state.hora) -> "La fecha y hora deben estar en el futuro"
             else -> null
         }
         if (error != null) { _uiState.update { it.copy(error = error) }; return }
@@ -140,6 +143,19 @@ class PublishTripViewModel : ViewModel() {
 
     fun clearError() { _uiState.update { it.copy(error = null) } }
     fun resetSuccess() { _uiState.update { it.copy(success = false) } }
+
+    private fun isValidFutureDateTime(dateMillis: Long, hourStr: String): Boolean {
+        return try {
+            val hour = hourStr.take(2).toInt()
+            val minute = hourStr.drop(3).take(2).toInt()
+            val selectedDate = Instant.ofEpochMilli(dateMillis).atZone(ZoneId.of("UTC")).toLocalDate()
+            val selectedDateTime = LocalDateTime.of(selectedDate, LocalTime.of(hour, minute))
+            val now = LocalDateTime.now(ZoneId.of("UTC"))
+            selectedDateTime.isAfter(now)
+        } catch (e: Exception) {
+            false
+        }
+    }
 }
 
 data class PublishTripUiState(
