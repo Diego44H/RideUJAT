@@ -71,6 +71,10 @@ fun MyTripsScreen(
         uiState.error?.let { snackbarHostState.showSnackbar(it); viewModel.clearError() }
     }
 
+    LaunchedEffect(uiState.notification) {
+        uiState.notification?.let { snackbarHostState.showSnackbar(it); viewModel.clearNotification() }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(

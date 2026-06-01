@@ -164,7 +164,7 @@ data class PublishTripUiState(
     val selectedVehicle: Vehicle? = null,
     val hasAcceptedPassengers: Boolean = false,
     val origen: String = "",
-    val destino: String = "Campus DACyTI-UJAT",
+    val destino: String = "",
     val fechaMillis: Long? = null,
     val hora: String = "",
     val asientos: Int = 1,

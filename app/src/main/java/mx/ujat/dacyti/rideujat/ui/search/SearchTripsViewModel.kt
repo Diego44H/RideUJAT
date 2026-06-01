@@ -2,11 +2,13 @@ package mx.ujat.dacyti.rideujat.ui.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.ujat.dacyti.rideujat.core.supabase
 import mx.ujat.dacyti.rideujat.data.model.TripWithDetails
 import mx.ujat.dacyti.rideujat.data.repository.SearchTripRepository
 
@@ -20,9 +22,10 @@ class SearchTripsViewModel : ViewModel() {
     init { loadTrips() }
 
     fun loadTrips() {
+        val userId = supabase.auth.currentUserOrNull()?.id
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.searchTrips("").fold(
+            repository.searchTrips("", excludeUserId = userId).fold(
                 onSuccess = { trips ->
                     _uiState.update { it.copy(isLoading = false, allTrips = trips, filteredTrips = trips) }
                 },

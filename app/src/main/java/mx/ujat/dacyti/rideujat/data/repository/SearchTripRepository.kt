@@ -11,7 +11,7 @@ import mx.ujat.dacyti.rideujat.data.model.Vehicle
 
 class SearchTripRepository {
 
-    suspend fun searchTrips(query: String): Result<List<TripWithDetails>> {
+    suspend fun searchTrips(query: String, excludeUserId: String? = null): Result<List<TripWithDetails>> {
         return try {
             val trips = supabase.postgrest["trips"].select {
                 filter {
@@ -40,6 +40,8 @@ class SearchTripRepository {
 
             val result = trips.map { trip ->
                 TripWithDetails(trip, conductors[trip.conductorId], vehicles[trip.vehiculoId])
+            }.filter { d ->
+                excludeUserId == null || d.trip.conductorId != excludeUserId
             }.let { list ->
                 if (query.isBlank()) list
                 else list.filter { d ->

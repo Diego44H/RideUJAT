@@ -25,7 +25,10 @@ class TripDetailViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             repository.loadTripWithDetails(tripId).fold(
-                onSuccess = { details -> _uiState.update { it.copy(tripDetails = details) } },
+                onSuccess = { details ->
+                    val isOwnTrip = details.trip.conductorId == userId
+                    _uiState.update { it.copy(tripDetails = details, isOwnTrip = isOwnTrip) }
+                },
                 onFailure = { e -> _uiState.update { it.copy(error = e.message) } }
             )
             repository.getMyRequest(tripId, userId).fold(
@@ -34,6 +37,8 @@ class TripDetailViewModel : ViewModel() {
             )
         }
     }
+
+    fun clearNotification() { _uiState.update { it.copy(notification = null) } }
 
     fun requestTrip(tripId: String) {
         val userId = supabase.auth.currentUserOrNull()?.id ?: return
@@ -67,5 +72,7 @@ data class TripDetailUiState(
     val myRequest: TripRequest? = null,
     val isLoading: Boolean = false,
     val isRequesting: Boolean = false,
-    val error: String? = null
+    val isOwnTrip: Boolean = false,
+    val error: String? = null,
+    val notification: String? = null
 )

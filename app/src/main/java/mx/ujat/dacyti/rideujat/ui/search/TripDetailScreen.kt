@@ -64,6 +64,10 @@ fun TripDetailScreen(
         uiState.error?.let { snackbarHostState.showSnackbar(it); viewModel.clearError() }
     }
 
+    LaunchedEffect(uiState.notification) {
+        uiState.notification?.let { snackbarHostState.showSnackbar(it); viewModel.clearNotification() }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -163,13 +167,17 @@ fun TripDetailScreen(
                 val req = uiState.myRequest
                 when (req?.estado) {
                     null, RequestEstado.CANCELADO_PASAJERO -> {
-                        Button(
-                            onClick = { viewModel.requestTrip(tripId) },
-                            enabled = !uiState.isRequesting && trip.asientosDisponibles > 0,
-                            modifier = Modifier.fillMaxWidth().height(52.dp)
-                        ) {
-                            if (uiState.isRequesting) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
-                            else Text("Solicitar Viaje", fontWeight = FontWeight.SemiBold)
+                        if (uiState.isOwnTrip) {
+                            Text("Este es tu viaje", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        } else {
+                            Button(
+                                onClick = { viewModel.requestTrip(tripId) },
+                                enabled = !uiState.isRequesting && trip.asientosDisponibles > 0,
+                                modifier = Modifier.fillMaxWidth().height(52.dp)
+                            ) {
+                                if (uiState.isRequesting) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary)
+                                else Text("Solicitar Viaje", fontWeight = FontWeight.SemiBold)
+                            }
                         }
                     }
                     RequestEstado.PENDIENTE -> {

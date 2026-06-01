@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,11 +28,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,8 +44,11 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onPublishTripClick: () -> Unit = {},
     onMyTripsClick: () -> Unit = {},
-    onSearchTripsClick: () -> Unit = {}
+    onSearchTripsClick: () -> Unit = {},
+    onActiveTripClick: (tripId: String, isConductor: Boolean) -> Unit = { _, _ -> },
+    viewModel: HomeViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -59,6 +67,20 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item { Spacer(Modifier.height(8.dp)) }
+
+            // Viaje activo
+            if (uiState.activeTripId != null) {
+                item {
+                    HomeActionCard(
+                        icon = Icons.Filled.LocationOn,
+                        title = "Viaje Activo",
+                        subtitle = if (uiState.isConductor) "Ver trayecto" else "Ver trayecto",
+                        onClick = { onActiveTripClick(uiState.activeTripId!!, uiState.isConductor) },
+                        modifier = Modifier.fillMaxWidth(),
+                        cardColor = Color(0xFF4CAF50)
+                    )
+                }
+            }
 
             // Sección conductor
             item {
@@ -104,18 +126,20 @@ private fun HomeActionCard(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardColor: Color? = null
 ) {
     Card(
         onClick = onClick,
         modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = if (cardColor != null) CardDefaults.cardColors(containerColor = cardColor.copy(alpha = 0.1f)) else CardDefaults.cardColors()
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
+            Icon(icon, contentDescription = null, tint = cardColor ?: MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
             Spacer(Modifier.height(8.dp))
             Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

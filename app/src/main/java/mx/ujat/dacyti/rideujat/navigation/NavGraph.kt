@@ -43,12 +43,14 @@ fun NavGraph(
                 onProfileClick = { navController.navigate(Profile) },
                 onPublishTripClick = { navController.navigate(NewTrip) },
                 onMyTripsClick = { navController.navigate(MyTrips) },
-                onSearchTripsClick = { navController.navigate(SearchTrips) }
+                onSearchTripsClick = { navController.navigate(SearchTrips) },
+                onActiveTripClick = { tripId, isConductor -> navController.navigate(ActiveTrip(tripId, isConductor)) }
             )
         }
         composable<Profile> {
             ProfileScreen(
                 onBack = { navController.popBackStack() },
+                onLogout = { navController.navigate(Login) { popUpTo<Profile> { inclusive = true } } },
                 onVehiclesClick = { navController.navigate(Vehicles) }
             )
         }

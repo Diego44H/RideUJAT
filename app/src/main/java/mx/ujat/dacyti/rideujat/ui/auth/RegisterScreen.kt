@@ -12,9 +12,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -45,6 +50,8 @@ fun RegisterScreen(
     var contrasena by remember { mutableStateOf("") }
     var confirmarContrasena by remember { mutableStateOf("") }
     var aceptaPrivacidad by remember { mutableStateOf(false) }
+    var mostrarContrasena by remember { mutableStateOf(false) }
+    var mostrarConfirmarContrasena by remember { mutableStateOf(false) }
     var localError by remember { mutableStateOf<String?>(null) }
 
     val uiState by viewModel.uiState.collectAsState()
@@ -84,7 +91,7 @@ fun RegisterScreen(
             onValueChange = { matricula = it; localError = null; viewModel.resetState() },
             label = { Text("Matrícula UJAT") },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -106,8 +113,16 @@ fun RegisterScreen(
             onValueChange = { contrasena = it; localError = null; viewModel.resetState() },
             label = { Text("Contraseña") },
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (mostrarContrasena) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { mostrarContrasena = !mostrarContrasena }) {
+                    Icon(
+                        if (mostrarContrasena) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                        contentDescription = if (mostrarContrasena) "Ocultar contraseña" else "Mostrar contraseña"
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -118,8 +133,16 @@ fun RegisterScreen(
             onValueChange = { confirmarContrasena = it; localError = null },
             label = { Text("Confirmar contraseña") },
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (mostrarConfirmarContrasena) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { mostrarConfirmarContrasena = !mostrarConfirmarContrasena }) {
+                    Icon(
+                        if (mostrarConfirmarContrasena) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                        contentDescription = if (mostrarConfirmarContrasena) "Ocultar contraseña" else "Mostrar contraseña"
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
 

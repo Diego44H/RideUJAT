@@ -30,7 +30,7 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -65,6 +65,7 @@ import mx.ujat.dacyti.rideujat.data.model.SosContact
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit,
+    onLogout: () -> Unit = {},
     onVehiclesClick: () -> Unit = {},
     viewModel: ProfileViewModel = viewModel()
 ) {
@@ -91,8 +92,11 @@ fun ProfileScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.signOut() }) {
-                        Icon(Icons.Filled.Logout, contentDescription = "Cerrar sesión")
+                    IconButton(onClick = {
+                        viewModel.signOut()
+                        onLogout()
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
                     }
                 }
             )
