@@ -69,7 +69,7 @@ class HomeViewModel : ViewModel() {
                             }.decodeSingle<Trip>()
                         }.getOrNull()
 
-                        if (trip != null && (trip.estado == TripEstado.EN_CURSO || trip.estado == TripEstado.PUBLICADO)) {
+                        if (trip != null && trip.estado == TripEstado.EN_CURSO) {
                             _uiState.update { it.copy(activeTripId = req.tripId, isConductor = false) }
                             return@launch
                         }

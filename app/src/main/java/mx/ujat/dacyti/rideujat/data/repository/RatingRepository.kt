@@ -55,12 +55,12 @@ class RatingRepository {
     ): Result<Unit> {
         return try {
             supabase.postgrest["ratings"].insert(
-                mapOf(
-                    "trip_id" to tripId,
-                    "evaluador_id" to evaluadorId,
-                    "evaluado_id" to evaluadoId,
-                    "estrellas" to estrellas,
-                    "comentario" to comentario?.ifBlank { null }
+                Rating(
+                    tripId = tripId,
+                    evaluadorId = evaluadorId,
+                    evaluadoId = evaluadoId,
+                    estrellas = estrellas,
+                    comentario = comentario?.ifBlank { null }
                 )
             )
             recalcularPromedio(evaluadoId)

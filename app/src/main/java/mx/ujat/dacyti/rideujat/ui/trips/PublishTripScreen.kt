@@ -59,11 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -269,38 +265,61 @@ fun PublishTripScreen(
             // Tiempo estimado
             item {
                 var showTiempoDialog by remember { mutableStateOf(false) }
+                val totalMin = uiState.tiempoEstimado.toIntOrNull() ?: 0
                 OutlinedButton(
                     onClick = { showTiempoDialog = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(if (uiState.tiempoEstimado.isNotBlank()) "${uiState.tiempoEstimado} min" else "Tiempo estimado (opcional)")
+                    val label = if (totalMin > 0) {
+                        val h = totalMin / 60; val m = totalMin % 60
+                        if (h > 0 && m > 0) "${h}h ${m}min" else if (h > 0) "${h}h" else "${m}min"
+                    } else "Tiempo estimado (opcional)"
+                    Text(label)
                 }
                 if (showTiempoDialog) {
-                    var selectedMinutos by remember { mutableStateOf(uiState.tiempoEstimado.toIntOrNull()?.minus(1)?.coerceIn(0, 59) ?: 0) }
+                    var selectedHoras by remember { mutableStateOf((totalMin / 60).coerceIn(0, 5)) }
+                    var selectedMinutos by remember { mutableStateOf((totalMin % 60).coerceIn(0, 59)) }
                     AlertDialog(
                         onDismissRequest = { showTiempoDialog = false },
-                        title = { Text("Tiempo estimado") },
+                        title = { Text("Tiempo estimado", style = MaterialTheme.typography.titleLarge) },
                         text = {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(
-                                    "${selectedMinutos + 1} minutos",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                MinutosWheelPicker(
-                                    selectedIndex = selectedMinutos,
-                                    onIndexSelected = { selectedMinutos = it }
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("Horas", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Spacer(Modifier.height(4.dp))
+                                        TiempoWheelColumn(
+                                            count = 6,
+                                            selectedIndex = selectedHoras,
+                                            onIndexSelected = { selectedHoras = it },
+                                            label = { it.toString() }
+                                        )
+                                    }
+                                    Text(":", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(horizontal = 12.dp))
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("Minutos", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        Spacer(Modifier.height(4.dp))
+                                        TiempoWheelColumn(
+                                            count = 60,
+                                            selectedIndex = selectedMinutos,
+                                            onIndexSelected = { selectedMinutos = it },
+                                            label = { "%02d".format(it) }
+                                        )
+                                    }
+                                }
                             }
                         },
                         confirmButton = {
                             TextButton(onClick = {
-                                viewModel.setTiempoEstimado((selectedMinutos + 1).toString())
+                                val total = selectedHoras * 60 + selectedMinutos
+                                if (total > 0) viewModel.setTiempoEstimado(total.toString())
                                 showTiempoDialog = false
                             }) { Text("Aceptar") }
                         },
@@ -372,77 +391,55 @@ fun PublishTripScreen(
 }
 
 @Composable
-private fun MinutosWheelPicker(
+private fun TiempoWheelColumn(
+    count: Int,
     selectedIndex: Int,
-    onIndexSelected: (Int) -> Unit
+    onIndexSelected: (Int) -> Unit,
+    label: (Int) -> String
 ) {
-    val itemCount = 60
-    val visibleItems = 5
     val itemHeightDp = 48.dp
+    val visibleItems = 5
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(listState) {
         snapshotFlow { listState.firstVisibleItemIndex }
-            .collect { index ->
-                onIndexSelected(index.coerceIn(0, itemCount - 1))
-            }
+            .collect { index -> onIndexSelected(index.coerceIn(0, count - 1)) }
     }
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .width(72.dp)
             .height(itemHeightDp * visibleItems),
         contentAlignment = Alignment.Center
     ) {
-        // Líneas de selección
-        HorizontalDivider(
-            modifier = Modifier.align(Alignment.Center).padding(bottom = itemHeightDp),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-            thickness = 1.dp
-        )
-        HorizontalDivider(
-            modifier = Modifier.align(Alignment.Center).padding(top = itemHeightDp),
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-            thickness = 1.dp
+        // Líneas que marcan el elemento seleccionado
+        Box(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .width(72.dp)
+                .height(itemHeightDp)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
         )
 
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer { alpha = 0.99f }
-                .drawWithContent {
-                    drawContent()
-                    // Degradado superior e inferior para efecto de rueda
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            0f to Color.White,
-                            0.35f to Color.Transparent,
-                            0.65f to Color.Transparent,
-                            1f to Color.White
-                        ),
-                        blendMode = BlendMode.DstIn
-                    )
-                },
             contentPadding = PaddingValues(vertical = itemHeightDp * 2),
-            flingBehavior = androidx.compose.foundation.lazy.rememberLazyListState().let {
-                androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior(listState)
-            }
+            flingBehavior = androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior(listState),
+            modifier = Modifier.width(72.dp).height(itemHeightDp * visibleItems)
         ) {
-            items(itemCount) { index ->
+            items(count) { index ->
                 val isSelected = index == selectedIndex
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .width(72.dp)
                         .height(itemHeightDp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "${index + 1}",
+                        text = label(index),
                         style = if (isSelected) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.bodyLarge,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center
                     )
                 }

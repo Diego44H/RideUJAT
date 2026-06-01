@@ -1,6 +1,7 @@
 package mx.ujat.dacyti.rideujat.ui.rating
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -140,11 +141,11 @@ fun RatingScreen(
 
             item {
                 Text("¿Cómo fue tu experiencia?", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
                 ) {
                     repeat(5) { idx ->
                         val rating = idx + 1
@@ -152,25 +153,28 @@ fun RatingScreen(
                             Icons.Filled.Star,
                             contentDescription = "$rating estrellas",
                             modifier = Modifier
-                                .size(48.dp)
-                                .padding(6.dp),
+                                .size(52.dp)
+                                .clickable { viewModel.setCurrentRating(rating) }
+                                .padding(4.dp),
                             tint = if (rating <= uiState.currentRating) Color(0xFFFFD700) else MaterialTheme.colorScheme.outlineVariant
                         )
                     }
                 }
-
                 Spacer(Modifier.height(4.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    repeat(5) { idx ->
-                        val rating = idx + 1
-                        TextButton(
-                            onClick = { viewModel.setCurrentRating(rating) },
-                            modifier = Modifier.size(56.dp)
-                        ) {
-                            Text(rating.toString(), style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
+                Text(
+                    text = when (uiState.currentRating) {
+                        1 -> "Muy malo"
+                        2 -> "Malo"
+                        3 -> "Regular"
+                        4 -> "Bueno"
+                        5 -> "Excelente"
+                        else -> "Toca una estrella para calificar"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (uiState.currentRating > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
             }
 
             item {

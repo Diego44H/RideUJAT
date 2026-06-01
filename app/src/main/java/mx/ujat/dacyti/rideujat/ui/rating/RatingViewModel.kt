@@ -58,7 +58,6 @@ class RatingViewModel : ViewModel() {
                 comentario = state.currentComment.ifBlank { null }
             ).fold(
                 onSuccess = {
-                    repository.incrementViajesCount(state.currentUserId)
                     val nextIndex = state.currentUserIndex + 1
                     if (nextIndex < state.usersToRate.size) {
                         _uiState.update {
@@ -70,11 +69,13 @@ class RatingViewModel : ViewModel() {
                             )
                         }
                     } else {
+                        // Incrementar viajes una sola vez al terminar todas las calificaciones
+                        repository.incrementViajesCount(state.currentUserId)
                         _uiState.update { it.copy(isSubmitting = false, ratingComplete = true) }
                     }
                 },
                 onFailure = { e ->
-                    _uiState.update { it.copy(isSubmitting = false, error = e.message) }
+                    _uiState.update { it.copy(isSubmitting = false, error = "No se pudo enviar la calificación. Intenta de nuevo.") }
                 }
             )
         }
