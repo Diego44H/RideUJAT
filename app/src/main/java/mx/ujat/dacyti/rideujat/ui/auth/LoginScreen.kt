@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -72,10 +73,11 @@ fun LoginScreen(
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it; viewModel.resetState() },
-            label = { Text("Correo @ujat.mx") },
+            label = { Text("Correo @ujat.mx", color = Color.Black) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -83,7 +85,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = contrasena,
             onValueChange = { contrasena = it; viewModel.resetState() },
-            label = { Text("Contraseña") },
+            label = { Text("Contraseña", color = Color.Black) },
             singleLine = true,
             visualTransformation = if (mostrarContrasena) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -95,7 +97,8 @@ fun LoginScreen(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         if (uiState is AuthUiState.Error) {

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +21,16 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    init { loadActiveTrip() }
+    init { startPolling() }
+
+    private fun startPolling() {
+        viewModelScope.launch {
+            while (true) {
+                loadActiveTrip()
+                delay(5000) // Verificar cada 5 segundos
+            }
+        }
+    }
 
     fun loadActiveTrip() {
         val userId = supabase.auth.currentUserOrNull()?.id ?: return
@@ -53,6 +63,9 @@ class HomeViewModel : ViewModel() {
 
                 if (passengerRequest != null) {
                     _uiState.update { it.copy(activeTripId = passengerRequest.tripId, isConductor = false) }
+                } else {
+                    // No active trip found
+                    _uiState.update { it.copy(activeTripId = null, isConductor = false) }
                 }
             } catch (e: Exception) {
                 // No active trip found
