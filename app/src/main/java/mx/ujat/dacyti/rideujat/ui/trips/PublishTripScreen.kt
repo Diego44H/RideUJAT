@@ -254,14 +254,39 @@ fun PublishTripScreen(
 
             // Tiempo estimado
             item {
-                OutlinedTextField(
-                    value = uiState.tiempoEstimado,
-                    onValueChange = { viewModel.setTiempoEstimado(it) },
-                    label = { Text("Tiempo estimado (opcional)") },
-                    placeholder = { Text("Ej: 20 min") },
-                    singleLine = true,
+                var showTiempoDialog by remember { mutableStateOf(false) }
+                OutlinedButton(
+                    onClick = { showTiempoDialog = true },
                     modifier = Modifier.fillMaxWidth()
-                )
+                ) {
+                    Text(if (uiState.tiempoEstimado.isNotBlank()) "${uiState.tiempoEstimado} min" else "Tiempo estimado (opcional)")
+                }
+                if (showTiempoDialog) {
+                    var minutos by remember { mutableStateOf(uiState.tiempoEstimado.toIntOrNull()?.toString() ?: "") }
+                    AlertDialog(
+                        onDismissRequest = { showTiempoDialog = false },
+                        title = { Text("Tiempo estimado (minutos)") },
+                        text = {
+                            OutlinedTextField(
+                                value = minutos,
+                                onValueChange = { minutos = it.filter { c -> c.isDigit() } },
+                                label = { Text("Minutos") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                if (minutos.isNotBlank()) viewModel.setTiempoEstimado(minutos)
+                                showTiempoDialog = false
+                            }) { Text("Aceptar") }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showTiempoDialog = false }) { Text("Cancelar") }
+                        }
+                    )
+                }
             }
 
             if (uiState.error != null) {

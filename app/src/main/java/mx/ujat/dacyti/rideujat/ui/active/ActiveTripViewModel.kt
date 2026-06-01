@@ -84,6 +84,7 @@ class ActiveTripViewModel(application: Application) : AndroidViewModel(applicati
                 repository.loadActiveTrip(tripId).onSuccess { details ->
                     _uiState.update { it.copy(tripDetails = details) }
                     if (details.trip.estado == TripEstado.FINALIZADO) {
+                        _uiState.update { it.copy(tripFinished = true) }
                         pollingJob?.cancel()
                         return@launch
                     }

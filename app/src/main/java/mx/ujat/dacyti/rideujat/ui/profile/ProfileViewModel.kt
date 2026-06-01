@@ -22,7 +22,7 @@ class ProfileViewModel : ViewModel() {
 
     init { loadData() }
 
-    private fun loadData() {
+    fun loadData() {
         val userId = supabase.auth.currentUserOrNull()?.id ?: return
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }

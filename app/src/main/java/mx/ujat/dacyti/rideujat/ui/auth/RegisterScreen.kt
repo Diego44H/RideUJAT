@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -79,9 +80,10 @@ fun RegisterScreen(
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it; localError = null; viewModel.resetState() },
-            label = { Text("Nombre completo") },
+            label = { Text("Nombre completo", color = Color.Black) },
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -89,10 +91,11 @@ fun RegisterScreen(
         OutlinedTextField(
             value = matricula,
             onValueChange = { matricula = it; localError = null; viewModel.resetState() },
-            label = { Text("Matrícula UJAT") },
+            label = { Text("Matrícula UJAT", color = Color.Black) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -100,10 +103,11 @@ fun RegisterScreen(
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it; localError = null; viewModel.resetState() },
-            label = { Text("Correo @ujat.mx") },
+            label = { Text("Correo @ujat.mx", color = Color.Black) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -111,7 +115,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = contrasena,
             onValueChange = { contrasena = it; localError = null; viewModel.resetState() },
-            label = { Text("Contraseña") },
+            label = { Text("Contraseña", color = Color.Black) },
             singleLine = true,
             visualTransformation = if (mostrarContrasena) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -123,7 +127,8 @@ fun RegisterScreen(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -131,7 +136,7 @@ fun RegisterScreen(
         OutlinedTextField(
             value = confirmarContrasena,
             onValueChange = { confirmarContrasena = it; localError = null },
-            label = { Text("Confirmar contraseña") },
+            label = { Text("Confirmar contraseña", color = Color.Black) },
             singleLine = true,
             visualTransformation = if (mostrarConfirmarContrasena) androidx.compose.ui.text.input.VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -143,7 +148,8 @@ fun RegisterScreen(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = androidx.compose.ui.text.TextStyle(color = Color.Black)
         )
 
         Spacer(modifier = Modifier.height(16.dp))

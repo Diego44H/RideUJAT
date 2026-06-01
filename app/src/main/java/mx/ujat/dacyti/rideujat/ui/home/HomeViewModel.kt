@@ -51,7 +51,7 @@ class HomeViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Check for active trips as passenger
+                // Check for active trips as passenger - verify trip is also EN_CURSO
                 val passengerRequest = runCatching {
                     supabase.postgrest["trip_requests"].select {
                         filter {
@@ -62,13 +62,25 @@ class HomeViewModel : ViewModel() {
                 }.getOrNull()
 
                 if (passengerRequest != null) {
-                    _uiState.update { it.copy(activeTripId = passengerRequest.tripId, isConductor = false) }
+                    // Verify the trip is still EN_CURSO
+                    val trip = runCatching {
+                        supabase.postgrest["trips"].select {
+                            filter { eq("id", passengerRequest.tripId) }
+                        }.decodeSingle<Trip>()
+                    }.getOrNull()
+
+                    if (trip != null && trip.estado == TripEstado.EN_CURSO) {
+                        _uiState.update { it.copy(activeTripId = passengerRequest.tripId, isConductor = false) }
+                    } else {
+                        _uiState.update { it.copy(activeTripId = null, isConductor = false) }
+                    }
                 } else {
                     // No active trip found
                     _uiState.update { it.copy(activeTripId = null, isConductor = false) }
                 }
             } catch (e: Exception) {
                 // No active trip found
+                _uiState.update { it.copy(activeTripId = null, isConductor = false) }
             }
         }
     }
